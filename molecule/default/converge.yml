@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+  become: yes
+
+  vars:
+
+  pre_tasks:
+    - name: Install dependencies
+      package:
+        name: 'ca-certificates'
+        state: present
+
+  roles:
+    - role: serverfriendsorg.nextcloud_exporter

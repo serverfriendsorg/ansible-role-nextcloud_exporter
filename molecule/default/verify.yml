@@ -1,0 +1,10 @@
+---
+- name: Verify
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Check if speedtest exporter is running
+      uri:
+        url: 'http://localhost:9205/metrics'
+        status_code: 200

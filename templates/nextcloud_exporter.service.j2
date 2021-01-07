@@ -1,0 +1,22 @@
+###################################
+# {{ansible_managed}} #
+###################################
+
+[Unit]
+Description=Prometheus nextcloud exporter service
+After=network.target
+Wants=network.target
+
+[Service]
+ExecStart={{ nextcloud_exporter_install_path }}/nextcloud_exporter --addr {{ nextcloud_exporter_listen_address }} --server {{ nextcloud_url }} --username {{ nextcloud_username }} --password {{ nextcloud_password }}
+
+Restart=always
+RestartSec=20
+TimeoutSec=300
+User={{ nextcloud_exporter_user }}
+Group={{ nextcloud_exporter_group }}
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

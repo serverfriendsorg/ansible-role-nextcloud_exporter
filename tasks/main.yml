@@ -1,0 +1,48 @@
+---
+- name: Ensure group for prometheus user exists
+  group:
+    name: '{{ nextcloud_exporter_group }}'
+    state: present
+
+- name: Add prometheus user
+  user:
+    name: '{{ nextcloud_exporter_user }}'
+    home: '{{ nextcloud_exporter_user_home }}'
+    group: '{{ nextcloud_exporter_group }}'
+    shell: '{{ nextcloud_exporter_user_shell }}'
+    state: present
+
+- name: Create nextcloud exporter directory
+  file:
+    path: '{{ nextcloud_exporter_install_path }}'
+    owner: '{{ nextcloud_exporter_user }}'
+    group: '{{ nextcloud_exporter_group }}'
+    mode: 0755
+    state: directory
+
+- name: Download nextcloud exporter
+  get_url:
+    url: '{{ nextcloud_exporter_download_url }}'
+    dest: '{{ nextcloud_exporter_install_path }}/nextcloud_exporter'
+    owner: '{{ nextcloud_exporter_user }}'
+    group: '{{ nextcloud_exporter_group }}'
+    mode: 0770
+
+- name: Install nextcloud exporter systemd unit file
+  template:
+    src: 'nextcloud_exporter.service.j2'
+    dest: '/etc/systemd/system/nextcloud_exporter.service'
+    owner: '{{ nextcloud_exporter_user }}'
+    group: '{{ nextcloud_exporter_group }}'
+    mode: 0644
+  notify:
+    - reload systemd_daemon
+    - restart nextcloud_exporter
+
+- meta: flush_handlers
+
+- name: Check if nextcloud exporter is started
+  service:
+    name: nextcloud_exporter.service
+    state: started
+    enabled: yes
