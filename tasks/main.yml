@@ -3,6 +3,7 @@
   group:
     name: '{{ nextcloud_exporter_group }}'
     state: present
+  become: True
 
 - name: Add prometheus user
   user:
@@ -11,6 +12,7 @@
     group: '{{ nextcloud_exporter_group }}'
     shell: '{{ nextcloud_exporter_user_shell }}'
     state: present
+  become: True
 
 - name: Create nextcloud exporter directory
   file:
@@ -19,14 +21,31 @@
     group: '{{ nextcloud_exporter_group }}'
     mode: 0755
     state: directory
+  become: True
+
+- name: Check if nextcloud_exporter already exists
+  stat:
+    path: '{{ nextcloud_exporter_install_path }}/nextcloud_exporter'
+  register: result
 
 - name: Download nextcloud exporter
   get_url:
     url: '{{ nextcloud_exporter_download_url }}'
-    dest: '{{ nextcloud_exporter_install_path }}/nextcloud_exporter'
+    dest: '/tmp/nextcloud_exporter.bz2'
+  when: not result.stat.exists
+
+- name: Extract nextcloud_exporter.bz2
+  shell: 'bunzip2 /tmp/nextcloud_exporter.bz2 -c > {{ nextcloud_exporter_install_path }}/nextcloud_exporter'
+  when: not result.stat.exists
+  become: True
+
+- name: Set file permission for nextcloud_exporter
+  file:
+    path: '{{ nextcloud_exporter_install_path }}/nextcloud_exporter'
     owner: '{{ nextcloud_exporter_user }}'
     group: '{{ nextcloud_exporter_group }}'
     mode: 0770
+  become: True
 
 - name: Install nextcloud exporter systemd unit file
   template:
@@ -38,6 +57,7 @@
   notify:
     - reload systemd_daemon
     - restart nextcloud_exporter
+  become: True
 
 - meta: flush_handlers
 

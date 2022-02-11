@@ -23,6 +23,9 @@ Available variables are listed below, along with default values (see `defaults/m
     # Netcloud Login url (e.g. https://nextcloud.example.org)
       nextcloud_url:
 
+    # Nexcloud Auth Token
+      nextcloud_auth_token:
+
     # Nextcloud Login username
       nextcloud_username:
 

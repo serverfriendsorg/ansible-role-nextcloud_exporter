@@ -8,7 +8,11 @@ After=network.target
 Wants=network.target
 
 [Service]
+{% if nextcloud_auth_token is defined %}
+ExecStart={{ nextcloud_exporter_install_path }}/nextcloud_exporter --addr {{ nextcloud_exporter_listen_address }} --server {{ nextcloud_url }} --auth-token {{ nextcloud_auth_token }}
+{% else %}
 ExecStart={{ nextcloud_exporter_install_path }}/nextcloud_exporter --addr {{ nextcloud_exporter_listen_address }} --server {{ nextcloud_url }} --username {{ nextcloud_username }} --password {{ nextcloud_password }}
+{% endif %}
 
 Restart=always
 RestartSec=20
